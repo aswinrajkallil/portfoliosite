@@ -40,7 +40,7 @@ const Chatbot = () => {
       {
         sender: "bot",
         text:
-          "• Hello, I'm Jarvis.\n• Ask me anything about Aswin Raj K C.",
+          "• Hi, I'm Jarvis AI.\n• I can answer questions about Aswin Raj K C.\n• Ask me about his projects, skills, education, or experience.",
       },
     ]);
 
@@ -51,6 +51,27 @@ const Chatbot = () => {
       behavior: "smooth",
     });
   }, [messages, loading]);
+
+useEffect(() => {
+  const warmup = async () => {
+    try {
+      await fetch(
+        `${import.meta.env.VITE_API_URL}/api/chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: "Warmup request",
+          }),
+        }
+      );
+    } catch {}
+  };
+
+  warmup();
+}, []);
 
   const sendMessage = async () => {
     if (!input.trim() || loading) return;

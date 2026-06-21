@@ -2,12 +2,16 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import axios from "axios";
-import chatConfig from "./chatConfig.js";
 import rateLimit from "express-rate-limit";
+import chatConfig from "./chatConfig.js";
 
 dotenv.config();
 
 const app = express();
+
+/* =========================
+   MIDDLEWARE
+========================= */
 
 app.use(
   cors({
@@ -16,14 +20,16 @@ app.use(
       "http://localhost:5174",
       "https://aswinraj.dev",
       "https://www.aswinraj.dev",
-      "https://portfolio-git-main-aswinrajkallils-projects.vercel.app",
-
     ],
   })
 );
+
 app.use(express.json());
 
-// Apply rate limiting
+/* =========================
+   RATE LIMITING
+========================= */
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 50,
@@ -34,24 +40,38 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// temorarily for testing
+/* =========================
+   HEALTH CHECK
+========================= */
+
+app.get("/", (req, res) => {
+  res.json({
+    status: "online",
+    service: "Jarvis API",
+  });
+});
+
 app.get("/test", (req, res) => {
   res.json({
     message: "Backend working",
   });
 });
 
+/* =========================
+   CHAT API
+========================= */
 
 app.post("/api/chat", async (req, res) => {
-   console.log("Message:", req.body.message);
   try {
     const userMessage = req.body.message;
 
-if (!userMessage || !userMessage.trim()) {
-  return res.status(400).json({
-    reply: "Message is required",
-  });
-}
+    if (!userMessage || !userMessage.trim()) {
+      return res.status(400).json({
+        reply: "Message is required",
+      });
+    }
+
+    console.log("User:", userMessage);
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
@@ -67,6 +87,8 @@ if (!userMessage || !userMessage.trim()) {
             content: userMessage,
           },
         ],
+        max_tokens: 200,
+        temperature: 0.7,
       },
       {
         headers: {
@@ -84,20 +106,25 @@ if (!userMessage || !userMessage.trim()) {
 
     res.json({ reply });
   } catch (error) {
-    console.error(
-      "OpenRouter Error:",
-      error.response?.data || error.message
-    );
+    console.error("===== OPENROUTER ERROR =====");
+    console.error("Status:", error.response?.status);
+    console.error("Data:", error.response?.data);
+    console.error("Message:", error.message);
+    console.error("============================");
 
     res.status(500).json({
-      reply: "Failed to get response from OpenRouter",
+      reply:
+        "Sorry, I'm temporarily unavailable. Please try again later.",
     });
   }
 });
 
+/* =========================
+   SERVER
+========================= */
 
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
