@@ -6,7 +6,7 @@ import Cursor from './Components/Cursor.jsx';
 const App = () => {
     return (
         <div className="App">
-            {/* <Cursor/> */}
+            <Cursor/>
             <Home />
         </div>
     );
