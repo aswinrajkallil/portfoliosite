@@ -1,0 +1,16 @@
+:root {
+    --bg: #050505;
+    --card-bg: #0b0b0d;
+    --card-hover: #111114;
+
+    --text-primary: #ffffff;
+    --text-secondary: #9ca3af;
+
+    --border: rgba(255, 255, 255, 0.08);
+
+    --accent: #7c5cff;
+    --accent-hover: #9277ff;
+
+    --success: #16a34a;
+}
+
